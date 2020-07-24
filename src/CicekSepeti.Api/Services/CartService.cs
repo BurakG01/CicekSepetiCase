@@ -22,7 +22,7 @@ namespace CicekSepeti.Api.Services
         {
             var product = _productRepository.GetProduct(cartRequest.ProductId);
 
-            var cartResponseMessage = string.Empty;
+            string cartResponseMessage;
 
             if (product == null)
             {

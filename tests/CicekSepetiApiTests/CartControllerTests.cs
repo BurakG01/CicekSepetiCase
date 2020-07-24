@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -57,7 +58,7 @@ namespace CicekSepetiApiTests
         }
 
         [Fact]
-        public async Task Cart_Add_Api_Should_Return_Cart_Response_When_Cart_Inserted()
+        public async Task Cart_Add_Api_Should_Return_Inserted_Cart_Response_When_Cart_Request()
         {
             var cartRequest = new CartRequest
             {
@@ -75,7 +76,45 @@ namespace CicekSepetiApiTests
             var expectedCartResponseMessage = "Cart Inserted";
 
             Assert.Equal(expectedStatusCode, response.StatusCode);
+
             Assert.Equal(expectedCartResponseMessage,cartResponseMessage);
+
+        }
+
+        [Fact]
+        public async Task Cart_Add_Api_Should_Return_Updated_Cart_Response_When_Same_Cart_Request()
+        {
+            var firstCartRequest = new CartRequest
+            {
+                ProductId = 2,
+                Quantity = 5
+            };
+            var secondCartRequest= new CartRequest
+            {
+                ProductId = 2,
+                Quantity = 10
+            };
+
+            var firstContent = new StringContent(JsonConvert.SerializeObject(firstCartRequest), Encoding.UTF8, "application/json");
+
+            var secondContent = new StringContent(JsonConvert.SerializeObject(secondCartRequest), Encoding.UTF8, "application/json");
+
+            await _client.PostAsync("/api/cart/add", firstContent);
+
+           var response=await _client.PostAsync("/api/cart/add", secondContent);
+
+            var result = await response.Content.ReadAsStringAsync();
+
+            var expectedQuantity = firstCartRequest.Quantity + secondCartRequest.Quantity;
+
+            var cartResponseMessage = JsonConvert.DeserializeObject<CartResponse>(result);
+
+            var expectedStatusCode = HttpStatusCode.OK;
+            var expectedCartResponseMessage = "Cart Updated";
+
+            Assert.Equal(expectedStatusCode, response.StatusCode);
+            Assert.Equal(expectedCartResponseMessage, cartResponseMessage.Message);
+            Assert.Equal(expectedQuantity,cartResponseMessage.AllCarts.First().Quantity);
 
         }
     }

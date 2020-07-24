@@ -13,7 +13,8 @@ namespace CicekSepeti.Api.Domain.InMemoryRepositories
             _products = new List<Product>()
             {
                 new Product("P11",50,1),
-                new Product("P12",30,2)
+                new Product("P12",30,2),
+                new Product("P12",60,3)
             };
         }
 
